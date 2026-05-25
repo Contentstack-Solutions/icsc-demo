@@ -4,6 +4,7 @@ import "./globals.css";
 import ContentstackServer from "@/lib/cstack";
 import { PersonalizeProvider } from "@/context/personalize.context";
 import { LyticsTracking } from "@/context/lyticsTracking";
+import { AuthProvider } from "@/context/auth.context";
 
 const fetchData = cache(async (locale) => {
   const headersList = await headers();
@@ -44,9 +45,11 @@ export default async function RootLayout({
       <body
       >
         {process.env.LYTICS_TAG && <LyticsTracking />}
-        {process.env.CONTENTSTACK_PERSONALIZATION ? <PersonalizeProvider>
-          {children}
-        </PersonalizeProvider> : <>{children}</>}
+        <AuthProvider>
+          {process.env.CONTENTSTACK_PERSONALIZATION ? <PersonalizeProvider>
+            {children}
+          </PersonalizeProvider> : <>{children}</>}
+        </AuthProvider>
       </body>
     </html>
   );
