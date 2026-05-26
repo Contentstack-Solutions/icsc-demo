@@ -4,7 +4,6 @@ import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth.context';
-import AuthHeader from '@/components/AuthHeader';
 
 export default function LoginPage({ params }) {
   const { locale } = use(params);
@@ -22,7 +21,21 @@ export default function LoginPage({ params }) {
     setError('');
     setLoading(true);
     try {
-      await login(email);
+      const user = await login(email);
+      if (typeof jstag !== 'undefined' && jstag) {
+        jstag.send({
+          name: user.name,
+          email: user.email,
+          organization: user.organization,
+          title: user.title,
+          customer_type: user.customer_type,
+          address: user.address,
+          phone: user.phone,
+          location_of_interest: user.locations_of_interest,
+          property_type: user.property_types,
+          next_generation: user.next_generation,
+        });
+      }
       router.push(`/${locale}`);
     } catch (err) {
       setError(err.message);
@@ -36,8 +49,6 @@ export default function LoginPage({ params }) {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <AuthHeader />
-
       <main className="flex-1 flex flex-col items-center py-16 px-4">
         <div className="w-full max-w-[500px]">
           <h1 className="text-[28px] font-bold text-center text-gray-900 mb-8">

@@ -4,9 +4,9 @@ import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth.context';
-import AuthHeader from '@/components/AuthHeader';
 
-const CUSTOMER_TYPES = ['Owner', 'Retailer', 'Next Generation'];
+const CUSTOMER_TYPES = ['Owner', 'Retailer'];
+const NEXT_GENERATION= true
 const PROPERTY_TYPES = ['Suburban Mall', 'Airport', 'Urban Locale'];
 
 const INPUT_CLASS =
@@ -39,6 +39,7 @@ export default function RegisterPage({ params }) {
     customerType: '',
     locationsOfInterest: '',
     propertyTypes: [],
+    nextGeneration: false,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -63,6 +64,18 @@ export default function RegisterPage({ params }) {
     setLoading(true);
     try {
       register(form);
+      jstag && jstag.send({
+        name: form.name,
+        email: form.email,
+        organization: form.organization,
+        title: form.title,
+        customer_type: form.customerType,
+        address: form.address,
+        phone: form.phone,
+        location_of_interest: form.locationsOfInterest,
+        property_type: form.propertyTypes,
+        next_generation: form.nextGeneration,
+      });
       router.push(`/${locale}`);
     } catch (err) {
       setError(err.message);
@@ -73,8 +86,6 @@ export default function RegisterPage({ params }) {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <AuthHeader />
-
       <main className="flex-1 flex flex-col items-center py-12 px-4">
         <div className="w-full max-w-[500px]">
           <h1 className="text-[28px] font-bold text-center text-gray-900 mb-8">
@@ -189,6 +200,19 @@ export default function RegisterPage({ params }) {
                 ))}
               </div>
             </div>
+
+            <Field label="Next Generation Customer">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="nextGeneration"
+                  checked={form.nextGeneration}
+                  onChange={(e) => setForm((prev) => ({ ...prev, nextGeneration: e.target.checked }))}
+                  className="w-4 h-4 text-blue-600 accent-blue-600"
+                />
+                <span className="text-sm text-gray-700">I am interested in next generation solutions</span>
+              </label>
+            </Field>
 
             <Field label="Locations Of Interest">
               <input

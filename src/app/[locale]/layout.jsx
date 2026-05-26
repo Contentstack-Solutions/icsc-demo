@@ -3,6 +3,8 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import ContentstackServer from "@/lib/cstack";
 import DataContextProvider from "@/context/data.context";
+import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 
 const fetchData = cache(async (locale) => {
   const headersList = await headers();
@@ -41,7 +43,10 @@ export default async function RootLayout({
 
   return (
     <DataContextProvider data={data}>
-      {children}
+      <Header />
+      <AppShell locale={locale}>
+        {children}
+      </AppShell>
     </DataContextProvider>
   );
 }

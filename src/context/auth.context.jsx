@@ -2,12 +2,14 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useEntity } from './lyticsTracking';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+   const lyticsProfileData = useEntity();
 
   useEffect(() => {
     const authCookie = document.cookie.split(';').find(c => c.trim().startsWith('icsc_auth='));
@@ -84,7 +86,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, lyticsProfileData }}>
       {children}
     </AuthContext.Provider>
   );
