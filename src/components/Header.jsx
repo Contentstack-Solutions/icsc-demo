@@ -6,18 +6,20 @@ import { useAuth } from "@/context/auth.context";
 import { useRouter } from "next/navigation";
 import { ContentstackClient } from "@/lib/contentstack-client";
 
-const NavLink = ({ href, children, active }) => (
+const NavLink = ({ href, children, active, $}) => {
+  return (
   <a
     href={href || "#"}
-    className={`text-sm transition-colors pb-[19px] ${
+    className={`text-sm transition-colors ${
       active
         ? "text-blue-600 border-b-2 border-blue-600"
         : "text-gray-700 hover:text-blue-600"
     }`}
+    {...($?.href ?? {})}
   >
-    <span>{children}</span>
+    <span {...($?.label ?? {})} className="pb-[19px]">{children}</span>
   </a>
-);
+)};
 
 export default function Header({ locale }) {
   const [togglePanel, setTogglePanel] = useState(false);
@@ -55,11 +57,10 @@ export default function Header({ locale }) {
         <a href="/" className="mr-8 xl:mr-12">
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt="ICSC Logo" className="h-12 w-auto min-w-[48px]" />
+            <img src={logoUrl} alt="ICSC Logo" className="h-12 w-auto min-w-[48px]" {...(headerEntry?.$?.logo ?? {})} />
           ) : (
-            <></>
             // eslint-disable-next-line @next/next/no-img-element
-            // <img src="/ICSC-logo.svg" alt="ICSC Logo" className="h-12 w-auto min-w-[48px]" />
+            <img src="/ICSC-logo.svg" alt="ICSC Logo" className="h-12 w-auto min-w-[48px]" {...(headerEntry?.$?.logo ?? {})} />
           )}
         </a>
 
@@ -82,20 +83,22 @@ export default function Header({ locale }) {
                   Sign Out
                 </button>
               )}
-              {utilityLinks.map((link) => (
-                <a key={link.label} href={link.href || "#"} className="hover:text-blue-600">
-                  {link.label}
+              {utilityLinks?.length > 0 && utilityLinks.map((link) => (
+                <a key={link.label} href={link.href || "#"} className="hover:text-blue-600" {...(link.$?.href ?? {})}>
+                  <span {...(link.$?.label ?? {})}>{link.label}</span>
                 </a>
               ))}
             </div>
           </div>
 
           {/* Main nav */}
-          <nav className="gap-4 xl:gap-8 ml-auto flex items-center">
-            {navLinks.map((link) => (
-              <NavLink key={link.label} href={link.href}>
-                {link.label}
-              </NavLink>
+          <nav className="gap-4 xl:gap-8 ml-auto flex items-center" {...(headerEntry?.$?.nav_links ?? {})}>
+            {navLinks?.length > 0 && navLinks.map((link, i) => (
+              <div key={link.label} {...headerEntry?.$?.["nav_links__" + i]}>
+                <NavLink key={link.label} href={link.href} active={link.active} $={link?.$}>
+                  {link.label}
+                </NavLink>
+              </div>
             ))}
             <div className="pb-4">
               <button

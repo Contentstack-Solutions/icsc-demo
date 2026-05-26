@@ -26,11 +26,28 @@ function getLocaleFromPath(pathname: string): string {
   return match ? match[1] : 'en';
 }
 
+function isIframeRequest(req: NextRequest): boolean {
+  return (
+    req.headers.get('Sec-Fetch-Dest') === 'iframe' ||
+    !!req.cookies.get('icsc_embed')?.value
+  );
+}
+
+function markEmbedCookie(req: NextRequest, response: NextResponse): NextResponse {
+  // On the initial iframe load, set a session cookie so all subsequent navigations
+  // within the iframe also skip the auth guard.
+  if (req.headers.get('Sec-Fetch-Dest') === 'iframe' && !req.cookies.get('icsc_embed')?.value) {
+    response.cookies.set('icsc_embed', '1', { path: '/', sameSite: 'none', secure: true });
+  }
+  return response;
+}
+
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const inIframe = isIframeRequest(req);
 
-  // Auth guard: redirect unauthenticated users to login
-  if (!pathname.startsWith('/api') && !isPublicPath(pathname)) {
+  // Auth guard: redirect unauthenticated users to login (skip when embedded in iframe)
+  if (!inIframe && !pathname.startsWith('/api') && !isPublicPath(pathname)) {
     const authCookie = req.cookies.get('icsc_auth');
     if (!authCookie?.value) {
       const locale = getLocaleFromPath(pathname);
@@ -52,21 +69,21 @@ export default async function middleware(req: NextRequest) {
       newReq.headers.set('x-personalize-variants', variantParam || '');
       const response = intlMiddleware(newReq);
       personalize?.addStateToResponse(response);
-      return response;
+      return markEmbedCookie(req, response);
     }
 
     const requestHeaders = new Headers(req.headers);
     requestHeaders.set('x-personalize-variants', variantParam || '');
     const response = NextResponse.next({ request: { headers: requestHeaders } });
     personalize?.addStateToResponse(response);
-    return response;
+    return markEmbedCookie(req, response);
   }
 
   if (pathname.startsWith('/api')) {
     return NextResponse.next();
   }
 
-  return intlMiddleware(req);
+  return markEmbedCookie(req, intlMiddleware(req));
 }
 
 export const config = {

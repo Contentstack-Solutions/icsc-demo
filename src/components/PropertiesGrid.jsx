@@ -167,6 +167,7 @@ export default function PropertiesGrid({ locale, entry, user }) {
                   ? "border-[#246EFF] text-[#246EFF]"
                   : "border-transparent text-gray-500 hover:text-gray-800"
               }`}
+              {...(tab.$?.label ?? {})}
             >
               {tab.label}
             </button>

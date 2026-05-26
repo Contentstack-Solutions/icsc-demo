@@ -6,31 +6,18 @@ import { PersonalizeProvider } from "@/context/personalize.context";
 import { LyticsTracking } from "@/context/lyticsTracking";
 import { AuthProvider } from "@/context/auth.context";
 
-const fetchData = cache(async (locale) => {
-  const headersList = await headers();
-  const variantParam = headersList.get('x-personalize-variants');
-  // example of how to fetch seo metadata from contentstack, you can create a new content type for seo metadata and use it like this:
-  const data = await ContentstackServer.getElementByUrl("seo", "/homepage", locale, {}, variantParam);
-  return data;
-});
+
 
 export const generateMetadata = async ({ params }) => {
   const { locale } = await params;
-  const data = await fetchData(locale);
-  const entry = data?.[0]?.[0];
 
   return {
-    title: entry?.seo?.title,
-    description: entry?.seo?.description,
+    title: "ICSC Demo",
+    description: "An ICSC demo showcasing personalization with Contentstack and Lytics",
     robots: {
       index: false,
       follow: false,
-    },
-    openGraph: {
-      title: entry?.seo?.og_meta_tags?.title,
-      description: entry?.seo?.og_meta_tags?.description,
-      images: entry?.seo?.og_meta_tags?.image,
-    },
+    }
   }
 };
 

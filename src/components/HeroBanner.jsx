@@ -20,13 +20,14 @@ export default function HeroBanner({ entry }) {
 
   return (
     <section className="w-full overflow-hidden">
-      <div className="relative w-full flex items-end" style={{ minHeight: 400 }}>
+      <div className="relative w-full flex items-end" style={{ minHeight: 400 }} 
+        // {...(entry?.$.backgound_image ?? {})}
+      >
 
         {/* Background image */}
         {bgImage ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            {...(entry.$?.backgound_image ?? {})}
             src={bgImage}
             alt={title}
             className="absolute inset-0 w-full h-full object-cover"
@@ -62,8 +63,13 @@ export default function HeroBanner({ entry }) {
             <a
               href={ctaHref}
               className="px-7 py-3 bg-[#246EFF] hover:bg-blue-700 text-white text-sm font-semibold rounded transition-colors w-fit"
+              {...(entry?.cta?.$?.internal_link__0 ?? {})}
             >
-              {ctaText}
+              <span
+                {...(entry?.cta?.$?.text ?? {})}
+              >
+                {ctaText}
+              </span>
             </a>
           )}
         </div>
