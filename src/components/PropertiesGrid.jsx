@@ -34,8 +34,8 @@ function PropertyCard({ property, saved, onToggleSave }) {
         )}
         {property?.taxonomies?.length > 0 && (
           property.taxonomies.map((t) => (
-            <span key={t.term_uid} className="absolute top-2 right-2 bg-blue-100 border border-blue-200 px-2 py-1 text-[9px] font-medium rounded-full">
-            {t?.term_uid}
+            <span key={t.term_uid} className="absolute top-2 right-2 capitalize bg-blue-100 border border-blue-200 px-2 py-1 text-[9px] font-medium rounded-full">
+            {t.term_uid?.replace(/_/g, " ")}
             </span>
           ))
         )}
@@ -46,22 +46,22 @@ function PropertyCard({ property, saved, onToggleSave }) {
         <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-1" title={property.title}>
           {property.title}
         </h3>
-        <p className="text-gray-500 text-xs line-clamp-1" title={property.full_address}>
+        <p className="text-gray-600 text-xs line-clamp-1" title={property.full_address}>
           {property.full_address}
         </p>
 
         <div className="mt-2 space-y-0.5">
           {property.service_category && (
-            <p className="text-gray-600 text-xs">{property.service_category}</p>
+            <p className="text-gray-500 text-xs">{property.service_category}</p>
           )}
           {property.community_type && (
-            <p className="text-gray-600 text-xs">{property.community_type}</p>
+            <p className="text-gray-500 text-xs">{property.community_type}</p>
           )}
           {property.neighborhood_type && (
-            <p className="text-gray-600 text-xs">{property.neighborhood_type}</p>
+            <p className="text-gray-500 text-xs">{property.neighborhood_type}</p>
           )}
           {sqFt && (
-            <p className="text-gray-600 text-xs">{sqFt}</p>
+            <p className="text-gray-500 text-xs">{sqFt}</p>
           )}
         </div>
 

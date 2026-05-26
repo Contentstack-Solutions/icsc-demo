@@ -17,7 +17,7 @@ const NavLink = ({ href, children, active, $}) => {
     }`}
     {...($?.href ?? {})}
   >
-    <span {...($?.label ?? {})} className="pb-[19px]">{children}</span>
+    <span {...($?.label ?? {})} className="inline-block pb-[19px]">{children}</span>
   </a>
 )};
 
