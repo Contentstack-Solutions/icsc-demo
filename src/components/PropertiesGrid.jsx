@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { StarIcon } from "@heroicons/react/24/outline";
 import { StarIcon as StarSolid } from "@heroicons/react/24/solid";
 import { ContentstackClient } from "@/lib/contentstack-client";
-import { useAuth } from "@/context/auth.context";
 
 
 function formatSqFt(n) {
@@ -32,6 +31,13 @@ function PropertyCard({ property, saved, onToggleSave }) {
           <img src={image} alt={property.title} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">No image</div>
+        )}
+        {property?.taxonomies?.length > 0 && (
+          property.taxonomies.map((t) => (
+            <span key={t.term_uid} className="absolute top-2 right-2 bg-blue-100 border border-blue-200 px-2 py-1 text-[9px] font-medium rounded-full">
+            {t?.term_uid}
+            </span>
+          ))
         )}
       </div>
 
@@ -77,18 +83,20 @@ function PropertyCard({ property, saved, onToggleSave }) {
   );
 }
 
-export default function PropertiesGrid({ locale, entry }) {
-  // console.log("🚀 ~ PropertiesGrid ~ entry:", entry)
-  const { user } = useAuth();
+export default function PropertiesGrid({ locale, entry, user }) {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [saved, setSaved]           = useState([]);
 
   const sectionTitle     = entry?.title ?? "";
-  // const prefilterEnabled = entry?.prefilter_by_profile_attributes === true;
   const tabs             = entry?.tabs ?? [];
-  // console.log("🚀 ~ PropertiesGrid ~ tabs:", tabs)
-  const [activeTab, setActiveTab] = useState(tabs[0]?.listing_type ?? "all");
+  const [activeTab, setActiveTab] = useState("all");
+
+  useEffect(() => {
+    if (tabs.length > 0) {
+      setActiveTab(tabs[0].listing_type);
+    }
+  }, [entry]);
 
   // Load saved UIDs from localStorage
   useEffect(() => {
@@ -108,7 +116,7 @@ export default function PropertiesGrid({ locale, entry }) {
 
   useEffect(() => {
     // console.log("🚀 ~ PropertiesGrid ~ properties:", properties)
-  }, [properties])
+  }, [properties, user])
 
   const toggleSave = (uid) => {
     setSaved((prev) => {
@@ -119,7 +127,7 @@ export default function PropertiesGrid({ locale, entry }) {
   };
 
   // Derive user's preferred taxonomy terms from their registered property_types
-  const userTerms = (user?.property_types ?? [])
+  const userTerms = (user?.property_type ?? [])
     .map((label) => LABEL_TO_TERM[label])
     .filter(Boolean);
 
@@ -127,13 +135,14 @@ export default function PropertiesGrid({ locale, entry }) {
     // if (activeTab === "saved") {
     //   return properties.filter((p) => saved.includes(p.uid));
     // }
-    // if (activeTab === "my_matches" || (prefilterEnabled && activeTab === "all")) {
-    //   if (userTerms.length > 0) {
-    //     return properties.filter((p) =>
-    //       p.taxonomies?.some((t) => userTerms.includes(t.term_uid))
-    //     );
-    //   }
-    // }
+    if (activeTab === "profile-attributes") {
+      if (userTerms.length > 0) {
+        const filteredProperties = properties.filter((p) =>
+          p.taxonomies?.some((t) => userTerms.includes(t.term_uid))
+        );
+        return filteredProperties;
+      }
+    }
     return properties;
   })();
 
@@ -147,7 +156,7 @@ export default function PropertiesGrid({ locale, entry }) {
       </h2>
 
       {/* Dynamic tabs from Contentstack */}
-      {tabs.length > 0 && (
+      {tabs?.length > 0 && (
         <div className="flex items-center border-b border-gray-200 mb-6 gap-1">
           {tabs.map((tab) => (
             <button
@@ -171,13 +180,13 @@ export default function PropertiesGrid({ locale, entry }) {
         </div>
       )}
 
-      {!loading && visibleProperties.length === 0 && (
+      {!loading && visibleProperties?.length === 0 && (
         <div className="text-center py-16 text-gray-400 text-sm">
           No properties found.
         </div>
       )}
 
-      {!loading && visibleProperties.length > 0 && (
+      {!loading && visibleProperties?.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {visibleProperties.map((property) => (
             <PropertyCard

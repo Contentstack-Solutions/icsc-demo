@@ -14,7 +14,6 @@ export default function Home({ params }) {
   const lyticsUser = lyticsProfileData?.data?.user;
 
   const [entry, setEntry] = useState(null);
-  console.log("🚀 ~ Home ~ entry:", entry?.title)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,7 +34,7 @@ export default function Home({ params }) {
   useEffect(() => {
     window.addEventListener('beforeunload', () => {
       if (!jstag) return;
-      // console.info("User is leaving the page, sending Lytics event for video views ");
+      console.info("User is leaving the page, sending Lytics event for video views ");
       jstag.send({
         "initial_video_attributes": "false"
       });
@@ -48,7 +47,7 @@ export default function Home({ params }) {
       "initial_video_attributes": "true"
     });
     // reload so lyticsUser reflects the updated attribute
-    window.location.href = `/${locale}`;
+    // window.location.href = `/${locale}`;
   };
 
   return (
@@ -68,7 +67,7 @@ export default function Home({ params }) {
       ) : (
         <HeroBanner entry={entry?.hero_banner?.[0]} />
       )}
-      <PropertiesGrid locale={locale} entry={entry?.properties_section} />
+      <PropertiesGrid locale={locale} entry={entry?.properties_section} user={lyticsUser} />
 
       {/* Reset video demo — fixed to bottom-right corner */}
       {entry?.vimeo_video_id && (

@@ -43,7 +43,7 @@ export default async function RootLayout({
 
   return (
     <DataContextProvider data={data}>
-      <Header />
+      <Header locale={locale} />
       <AppShell locale={locale}>
         {children}
       </AppShell>
