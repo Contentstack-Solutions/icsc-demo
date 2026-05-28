@@ -2,27 +2,37 @@
 import { useDataContext } from "@/context/data.context";
 import { ContentstackClient } from "@/lib/contentstack-client";
 import { useState, useEffect, use } from "react";
+import EventsPage from "@/components/EventsPage";
 
 export default function Page({ params }) {
-  const { locale } = use(params);
+  const { locale, slug } = use(params);
   const initialData = useDataContext();
-  const {slug} = params;
 
   const [entry, setEntry] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      // example of how to fetch data from contentstack, replace "homepage" with the content type you want to fetch
-      const data = await ContentstackClient.getElementByUrl("page", `/page/${slug}`, locale);
-      if(data) {
-        setEntry(data[0]);
+      if (slug === "events") {
+        const data = await ContentstackClient.getElementByUrlWithRefs(
+          "events_page",
+          `/page/events`,
+          locale,
+          ["events"]
+        );
+        setEntry(data ? data[0] : null);
       } else {
-        setEntry(null);
+        const data = await ContentstackClient.getElementByUrl("page", `/page/${slug}`, locale);
+        setEntry(data ? data[0] : null);
       }
-    }
+    };
 
+    fetchData();
     ContentstackClient.onEntryChange(fetchData);
-  }, [locale, initialData])
+  }, [locale, slug, initialData]);
+
+  if (slug === "events") {
+    return <EventsPage entry={entry} />;
+  }
 
   if (!entry) {
     return (
@@ -36,7 +46,7 @@ export default function Page({ params }) {
   return (
     <div className="bg-white">
       <div className="max-w-5xl mx-auto px-6 py-12">
-         <h1 className="text-4xl text-[#246EFF]">{entry.title}</h1>
+        <h1 className="text-4xl text-[#246EFF]">{entry.title}</h1>
       </div>
     </div>
   );
