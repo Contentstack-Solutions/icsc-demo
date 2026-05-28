@@ -100,7 +100,7 @@ export default function EventsPage({ entry }) {
     <div className="min-h-screen bg-gray-50">
       {/* Banner */}
       <div className="w-full bg-[#246EFF] px-8 py-10">
-        <h1 className="text-3xl font-bold text-white">My ICSC Events</h1>
+        <h1 className="text-3xl font-bold text-white"{...(entry?.$?.heading ?? {})}>{entry?.heading}</h1>
       </div>
 
       {/* Events grid */}
@@ -109,8 +109,8 @@ export default function EventsPage({ entry }) {
           <p className="text-gray-500 text-center py-20">No events found.</p>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {events.map((event) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" {...(entry?.$?.events ?? {})}>
+          {events.map((event, index) => {
             const attendees = attendeesMap[event.uid];
             const isEventLoading = loading || attendees === undefined;
             const isCollapsed = !!collapsedEvents[event.uid];
@@ -119,17 +119,20 @@ export default function EventsPage({ entry }) {
               <div
                 key={event.uid}
                 className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 flex flex-col"
+                {...(entry?.$?.["events__" + index] ?? {})}
               >
                 {/* Event info — flex-1 so it fills space when attendees are collapsed */}
                 <div className="flex-1">
                   <h2
                     className={`font-bold text-gray-900 mb-1 transition-all duration-300 ${isCollapsed ? 'text-2xl' : 'text-lg'}`}
+                    {...(event?.$?.title ?? {})}
                   >
                     {event.title}
                   </h2>
                   {event.date && (
                     <p
                       className={`font-medium text-[#246EFF] mb-2 transition-all duration-300 ${isCollapsed ? 'text-base' : 'text-sm'}`}
+                      {...(event?.$?.date ?? {})}
                     >
                       {formatEventDate(event.date)}
                     </p>
@@ -137,6 +140,7 @@ export default function EventsPage({ entry }) {
                   {event.description && (
                     <p
                       className={`text-gray-500 leading-relaxed transition-all duration-300 ${isCollapsed ? 'text-base' : 'text-sm'}`}
+                      {...(event?.$?.description ?? {})}
                     >
                       {event.description}
                     </p>

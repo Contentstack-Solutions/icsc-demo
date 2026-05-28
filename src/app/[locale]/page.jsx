@@ -53,7 +53,7 @@ export default function Home({ params }) {
   return (
     <div className="min-h-screen bg-white p-8">
       {(entry?.vimeo_video_id && lyticsUser?.initial_video_attributes) ? (
-        <div className="max-w-5xl mx-auto px-6 py-12">
+        <div className="max-w-5xl mx-auto px-6 py-12" {...(entry?.$?.vimeo_video_id ?? {})}>
           <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
             <iframe
               src={`https://player.vimeo.com/video/${entry?.vimeo_video_id}?autoplay=0&title=0&byline=0&portrait=0`}
@@ -65,9 +65,13 @@ export default function Home({ params }) {
           </div>
         </div>
       ) : (
-        <HeroBanner entry={entry?.hero_banner?.[0]} />
+        <div {...(entry?.$?.hero_banner ?? {})}>
+          <HeroBanner entry={entry?.hero_banner?.[0]} />
+        </div>
       )}
-      <PropertiesGrid locale={locale} entry={entry?.properties_section} user={lyticsUser} />
+      <div {...(entry?.$?.properties_section ?? {})}>
+        <PropertiesGrid locale={locale} entry={entry?.properties_section} user={lyticsUser} />
+      </div>
 
       {/* Reset video demo — fixed to bottom-right corner */}
       {entry?.vimeo_video_id && (

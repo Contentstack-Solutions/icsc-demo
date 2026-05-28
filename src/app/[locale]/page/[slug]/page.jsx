@@ -46,7 +46,7 @@ export default function Page({ params }) {
   return (
     <div className="bg-white">
       <div className="max-w-5xl mx-auto px-6 py-12">
-        <h1 className="text-4xl text-[#246EFF]">{entry.title}</h1>
+        <h1 className="text-4xl text-[#246EFF]" {...(entry?.$?.title ?? {})}>{entry.title}</h1>
       </div>
     </div>
   );
