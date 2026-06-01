@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 
 const AUTH_PATHS = ["/login", "/register"];
@@ -8,8 +9,17 @@ const AUTH_PATHS = ["/login", "/register"];
 export default function AppShell({ children, locale }) {
   const pathname = usePathname();
   const isAuthPage = AUTH_PATHS.some((p) => pathname.endsWith(p));
+  const [isInIframe, setIsInIframe] = useState(false);
 
-  if (isAuthPage) {
+  useEffect(() => {
+    try {
+      setIsInIframe(window.self !== window.top);
+    } catch {
+      setIsInIframe(true); // cross-origin iframe throws on window.top access
+    }
+  }, []);
+
+  if (isAuthPage || isInIframe) {
     return <>{children}</>;
   }
 
