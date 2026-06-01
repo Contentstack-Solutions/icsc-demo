@@ -50,7 +50,11 @@ export default function LyticsExtension({ onClose }) {
       
           <div className="h-full w-full rounded-b-xl mb-2 bg-white flex flex-col">
 
-          {!lyticsProfileData ? (
+          {lyticsProfileData === false ? (
+            <div className="flex flex-col items-center justify-center flex-1 py-16 gap-3 text-neutral-500">
+              <span className="text-sm text-center px-6">Could not load Lytics profile. The script may be blocked or unavailable.</span>
+            </div>
+          ) : !lyticsProfileData ? (
             <div className="flex flex-col items-center justify-center flex-1 py-16 gap-3 text-neutral-500">
               <div className="animate-spin rounded-full h-8 w-8 border-2 border-neutral-200 border-t-[#6351e3]" />
               <span className="text-sm">Loading profile…</span>

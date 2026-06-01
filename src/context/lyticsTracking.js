@@ -31,18 +31,25 @@ export const useJstag = () => {
   return undefined;
 };
 
-export const useEntity = () => {
+export const useEntity = (timeoutMs = 8000) => {
   const jstag = useJstag();
   const [entity, setEntity] = useState(null);
 
   useEffect(() => {
+    if (!jstag) {
+      const timer = setTimeout(() => setEntity(false), timeoutMs);
+      return () => clearTimeout(timer);
+    }
+
+    const timer = setTimeout(() => setEntity(prev => prev === null ? false : prev), timeoutMs);
     const off = jstag.on("entity.loaded", (_, entity) => {
       setEntity(entity);
     });
     return () => {
+      clearTimeout(timer);
       off();
     };
-  }, []);
+  }, [jstag, timeoutMs]);
 
   return entity;
 };
