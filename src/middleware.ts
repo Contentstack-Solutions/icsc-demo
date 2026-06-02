@@ -29,23 +29,8 @@ function getLocaleFromPath(pathname: string): string {
 function isIframeRequest(req: NextRequest): boolean {
   return (
     req.headers.get('Sec-Fetch-Dest') === 'iframe' ||
-    req.nextUrl.searchParams.get('embed') === 'true' ||
-    !!req.nextUrl.searchParams.get('live_preview') ||
-    !!req.cookies.get('icsc_embed')?.value
+    !!req.nextUrl.searchParams.get('live_preview')
   );
-}
-
-function markEmbedCookie(req: NextRequest, response: NextResponse): NextResponse {
-  // Set a session cookie on the initial embed load so all subsequent navigations
-  // within the iframe also skip the auth guard.
-  const isFirstLoad =
-    req.headers.get('Sec-Fetch-Dest') === 'iframe' ||
-    req.nextUrl.searchParams.get('embed') === 'true' ||
-    !!req.nextUrl.searchParams.get('live_preview');
-  if (isFirstLoad && !req.cookies.get('icsc_embed')?.value) {
-    response.cookies.set('icsc_embed', '1', { path: '/', sameSite: 'none', secure: true });
-  }
-  return response;
 }
 
 export default async function middleware(req: NextRequest) {
@@ -75,21 +60,19 @@ export default async function middleware(req: NextRequest) {
       newReq.headers.set('x-personalize-variants', variantParam || '');
       const response = intlMiddleware(newReq);
       personalize?.addStateToResponse(response);
-      return markEmbedCookie(req, response);
+      return response;
     }
 
     const requestHeaders = new Headers(req.headers);
     requestHeaders.set('x-personalize-variants', variantParam || '');
-    const response = NextResponse.next({ request: { headers: requestHeaders } });
-    personalize?.addStateToResponse(response);
-    return markEmbedCookie(req, response);
+    return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
   if (pathname.startsWith('/api')) {
     return NextResponse.next();
   }
 
-  return markEmbedCookie(req, intlMiddleware(req));
+  return intlMiddleware(req);
 }
 
 export const config = {
