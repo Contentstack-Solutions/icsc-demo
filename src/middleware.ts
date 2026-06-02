@@ -42,16 +42,11 @@ export default async function middleware(req: NextRequest) {
   const referer = req.headers.get('referer') ?? '';
   const inIframe = isIframeRequest(req);
 
-  console.log('[middleware]', pathname, {
-    secFetchDest,
-    livePreviewParam,
-    refererHasLivePreview: referer.includes('live_preview='),
-    inIframe,
-    authCookie: req.cookies.get('icsc_auth')?.value ?? null,
-  });
-
   // Auth guard: redirect unauthenticated users to login (skip when embedded in iframe)
-  if (!inIframe && !pathname.startsWith('/api') && !isPublicPath(pathname)) {
+  if (inIframe) {
+    console.log('[middleware] in iframe — skipping auth check for path:', pathname);
+  }
+  else if (!pathname.startsWith('/api') && !isPublicPath(pathname)) {
     console.log('[middleware] not in iframe — checking auth for path:', pathname);
     const authCookie = req.cookies.get('icsc_auth');
     if (!authCookie?.value) {
