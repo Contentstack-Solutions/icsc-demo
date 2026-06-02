@@ -29,14 +29,20 @@ function getLocaleFromPath(pathname: string): string {
 function isIframeRequest(req: NextRequest): boolean {
   return (
     req.headers.get('Sec-Fetch-Dest') === 'iframe' ||
+    req.nextUrl.searchParams.get('embed') === 'true' ||
+    !!req.nextUrl.searchParams.get('live_preview') ||
     !!req.cookies.get('icsc_embed')?.value
   );
 }
 
 function markEmbedCookie(req: NextRequest, response: NextResponse): NextResponse {
-  // On the initial iframe load, set a session cookie so all subsequent navigations
+  // Set a session cookie on the initial embed load so all subsequent navigations
   // within the iframe also skip the auth guard.
-  if (req.headers.get('Sec-Fetch-Dest') === 'iframe' && !req.cookies.get('icsc_embed')?.value) {
+  const isFirstLoad =
+    req.headers.get('Sec-Fetch-Dest') === 'iframe' ||
+    req.nextUrl.searchParams.get('embed') === 'true' ||
+    !!req.nextUrl.searchParams.get('live_preview');
+  if (isFirstLoad && !req.cookies.get('icsc_embed')?.value) {
     response.cookies.set('icsc_embed', '1', { path: '/', sameSite: 'none', secure: true });
   }
   return response;
