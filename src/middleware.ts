@@ -27,21 +27,36 @@ function getLocaleFromPath(pathname: string): string {
 }
 
 function isIframeRequest(req: NextRequest): boolean {
+  const referer = req.headers.get('referer') ?? '';
   return (
     req.headers.get('Sec-Fetch-Dest') === 'iframe' ||
-    !!req.nextUrl.searchParams.get('live_preview')
+    !!req.nextUrl.searchParams.get('live_preview') ||
+    referer.includes('live_preview=')
   );
 }
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const secFetchDest = req.headers.get('Sec-Fetch-Dest');
+  const livePreviewParam = req.nextUrl.searchParams.get('live_preview');
+  const referer = req.headers.get('referer') ?? '';
   const inIframe = isIframeRequest(req);
+
+  console.log('[middleware]', pathname, {
+    secFetchDest,
+    livePreviewParam,
+    refererHasLivePreview: referer.includes('live_preview='),
+    inIframe,
+    authCookie: req.cookies.get('icsc_auth')?.value ?? null,
+  });
 
   // Auth guard: redirect unauthenticated users to login (skip when embedded in iframe)
   if (!inIframe && !pathname.startsWith('/api') && !isPublicPath(pathname)) {
+    console.log('[middleware] not in iframe — checking auth for path:', pathname);
     const authCookie = req.cookies.get('icsc_auth');
     if (!authCookie?.value) {
       const locale = getLocaleFromPath(pathname);
+      console.log('[middleware] redirecting to login — secFetchDest:', secFetchDest, 'live_preview:', livePreviewParam, 'referer:', referer);
       return NextResponse.redirect(new URL(`/${locale}/login`, req.url));
     }
   }
