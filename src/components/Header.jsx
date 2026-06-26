@@ -44,9 +44,6 @@ export default function Header({ locale }) {
 
   const handleSignOut = () => {
     logout();
-    jstag.clearCookies()
-    jstag.clearCookies()
-    jstag.clearCookies()
     window.location.href = '/en'
   };
 
