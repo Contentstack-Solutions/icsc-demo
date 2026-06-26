@@ -42,13 +42,12 @@ export const useEntity = (timeoutMs = 8000) => {
     }
 
     const timer = setTimeout(() => setEntity(prev => prev === null ? false : prev), timeoutMs);
-    const off = jstag.on("entity.loaded", (_, entity) => {
-      setEntity(entity);
-    });
-    return () => {
+    // entityReady fires immediately if entity is already loaded, unlike "entity.loaded" which misses past events
+    jstag.call('entityReady', (profile) => {
       clearTimeout(timer);
-      off();
-    };
+      setEntity(profile);
+    });
+    return () => clearTimeout(timer);
   }, [jstag, timeoutMs]);
 
   return entity;
