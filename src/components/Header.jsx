@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import { Squares2X2Icon } from "@heroicons/react/24/outline";
 import LyticsExtension from "./lyticsExtension";
 import { useAuth } from "@/context/auth.context";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { ContentstackClient } from "@/lib/contentstack-client";
+
+const AUTH_PATHS = ["/login", "/register"];
 
 const NavLink = ({ href, children, active, $}) => {
   return (
@@ -26,6 +28,8 @@ export default function Header({ locale }) {
   const [headerEntry, setHeaderEntry] = useState(null);
   const { user, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+  const isAuthPage = AUTH_PATHS.some((p) => pathname.endsWith(p));
 
   useEffect(() => {
     const fetchHeader = async () => {
@@ -40,7 +44,10 @@ export default function Header({ locale }) {
 
   const handleSignOut = () => {
     logout();
-    router.push("/en/login");
+    jstag.clearCookies()
+    jstag.clearCookies()
+    jstag.clearCookies()
+    window.location.href = '/en'
   };
 
   const initials = user?.name
@@ -68,17 +75,17 @@ export default function Header({ locale }) {
           {/* Utility bar */}
           <div className="flex items-center gap-2 text-sm text-gray-600 ml-auto">
             <div className="flex justify-end items-center py-2 gap-6 text-sm text-gray-600">
-              {user ? (
+              {!isAuthPage && user ? (
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
                     {initials}
                   </div>
                   <span className="font-medium text-gray-800">My ICSC</span>
                 </div>
-              ) : (
+              ) : !isAuthPage && (
                 <a href="#" className="hover:text-blue-600">Login</a>
               )}
-              {user && (
+              {!isAuthPage && user && (
                 <button onClick={handleSignOut} className="hover:text-blue-600 cursor-pointer">
                   Sign Out
                 </button>

@@ -36,7 +36,7 @@ export default function LoginPage({ params }) {
           next_generation: user.next_generation,
         });
       }
-      router.push(`/${locale}`);
+      window.location.href =  `/${locale}`
     } catch (err) {
       setError(err.message);
     } finally {

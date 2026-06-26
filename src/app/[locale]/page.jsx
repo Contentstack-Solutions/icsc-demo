@@ -4,21 +4,18 @@ import { useDataContext } from "@/context/data.context";
 import { ContentstackClient } from "@/lib/contentstack-client";
 import ContentstackServer from "@/lib/cstack";
 import { useState, useEffect, useRef, use } from "react";
+import { usePathname } from "next/navigation";
 import HeroBanner from "@/components/HeroBanner";
 import PropertiesGrid from "@/components/PropertiesGrid";
+
 export default function Home({ params }) {
   const { locale } = use(params);
   const initialData = useDataContext();
+  const pathname = usePathname();
   const [lyticsUser, setLyticsUser] = useState(null);
 
   const [entry, setEntry] = useState(null);
   const resetViewsRef = useRef(false);
-
-  useEffect(() => {
-    jstag.call('entityReady', (profile) => {
-        setLyticsUser(profile?.data?.user);
-    });
-  }, []);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -37,6 +34,14 @@ export default function Home({ params }) {
   }, [locale, initialData])
 
   useEffect(() => {
+    if (typeof jstag === 'undefined') return;
+    setTimeout(() =>{})
+    jstag.call('entityReady', (profile) => {
+      setLyticsUser(profile?.data?.user);
+    });
+  }, [pathname])
+
+  useEffect(() => {
     const handleBeforeUnload = () => {
       if (!jstag) return;
       console.log(resetViewsRef.current)
@@ -49,18 +54,21 @@ export default function Home({ params }) {
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   const resetVideoViews = () => {
-    // console.info("============ Reset video views button clicked. ===============");
+    console.info("============ Reset video views button clicked. ===============");
     resetViewsRef.current = true;
     window.location.href = `/${locale}`;
   };
 
   return (
     <div className="min-h-screen bg-white p-8">
-      {(entry?.vimeo_video_id && lyticsUser?.initial_video_attributes) ? (
+      {console.log("video rendering  -----",entry?.vimeo_video_id , lyticsUser?.initial_video_attributes)}
+      {(entry?.vimeo_video_id && lyticsUser?.initial_video_attributes ) ? (
         <div className="max-w-5xl mx-auto px-6 py-12" {...(entry?.$?.vimeo_video_id ?? {})}>
           <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
             <iframe

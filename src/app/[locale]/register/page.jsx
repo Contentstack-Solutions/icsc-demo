@@ -63,7 +63,7 @@ export default function RegisterPage({ params }) {
     setError('');
     setLoading(true);
     try {
-      register(form);
+      const regData = await register(form);
       jstag && jstag.send({
         name: form.name,
         email: form.email,
@@ -75,8 +75,9 @@ export default function RegisterPage({ params }) {
         location_of_interest: form.locationsOfInterest,
         property_type: form.propertyTypes,
         next_generation: form.nextGeneration,
+        initial_video_attributes: "true"
       });
-      router.push(`/${locale}`);
+      window.location.href =  `/${locale}/login`
     } catch (err) {
       setError(err.message);
     } finally {

@@ -54,7 +54,7 @@ export default function Sidebar({ locale }) {
         const active = isActive(href);
         const ActiveIcon = active ? IconActive : Icon;
         return (
-          <Link
+          <a
             key={label}
             href={`/${locale}${href === "/" ? "" : href}`}
             className={`flex items-center gap-3 px-4 py-2.5 group transition-colors ${
@@ -74,7 +74,7 @@ export default function Sidebar({ locale }) {
                 {badge}
               </span>
             ) : null}
-          </Link>
+          </a>
         );
       })}
     </aside>

@@ -81,12 +81,15 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('icsc_user');
-    document.cookie = 'icsc_auth=; path=/; max-age=0';
+    localStorage.clear();
+    document.cookie.split(';').forEach((c) => {
+      document.cookie = c.trim().replace(/=.*/, '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/');
+    });
+    if (typeof jstag !== 'undefined') jstag.clearCookies();
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, lyticsProfileData }}>
+    <AuthContext.Provider value={{ user, setUser, loading, login, register, logout, lyticsProfileData }}>
       {children}
     </AuthContext.Provider>
   );
